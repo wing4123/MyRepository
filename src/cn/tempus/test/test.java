@@ -20,7 +20,7 @@ public class test {
         }finally{  
             if(br!=null){  
                 try{  
-                    br.close();  
+                    br.close();
                 }catch(Exception e){  
                     e.printStackTrace();  
                 }  
