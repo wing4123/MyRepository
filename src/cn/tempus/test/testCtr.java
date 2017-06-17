@@ -55,7 +55,7 @@ public class testCtr {
 	@RequestMapping(value="/testinsert")
 	public int testinsert(HttpServletRequest request){
 		
-		task.vpn();
+		task.connectVPN();
 		
 		return 1;
 		

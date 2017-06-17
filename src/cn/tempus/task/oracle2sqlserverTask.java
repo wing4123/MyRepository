@@ -28,13 +28,15 @@ public class oracle2sqlserverTask {
      * 每天23:58:00定时连接vpn
      */
     @Scheduled(cron = "0 58 23 * * ?")
-    public void vpn(){
-    	BufferedReader br=null;  
+    public String connectVPN(){
+    	BufferedReader br=null;
+    	StringBuffer sb = new StringBuffer();
         try {  
             Process p=Runtime.getRuntime().exec("rasdial vpn S216 dS5GpeKj/LA=");  
             br=new BufferedReader(new InputStreamReader(p.getInputStream(), "GBK"));  
             String line=null;  
-            while((line=br.readLine())!=null){  
+            while((line=br.readLine())!=null){
+            	sb.append(line);
                 System.out.println(line);  
             }  
         } catch (IOException e) {  
@@ -47,6 +49,8 @@ public class oracle2sqlserverTask {
                     e.printStackTrace();  
                 }  
             }  
-        }  
+        }
+        
+        return sb.toString();
     }
 }

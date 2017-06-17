@@ -6,13 +6,15 @@ import java.io.InputStreamReader;
 
 public class cmdUtil {
 
-	public void excutecmd(String cmd){
-		BufferedReader br=null;  
+	public static String excutecmd(String cmd){
+		BufferedReader br=null;
+		StringBuffer sb = new StringBuffer();
         try {  
             Process p=Runtime.getRuntime().exec(cmd);  
             br=new BufferedReader(new InputStreamReader(p.getInputStream(), "GBK"));  
             String line=null;  
-            while((line=br.readLine())!=null){  
+            while((line=br.readLine())!=null){
+            	sb.append(line+"\n");
                 System.out.println(line);  
             }  
         } catch (IOException e) {  
@@ -25,6 +27,8 @@ public class cmdUtil {
                     e.printStackTrace();  
                 }  
             }  
-        } 
+        }
+        
+        return sb.toString();
 	}
 }

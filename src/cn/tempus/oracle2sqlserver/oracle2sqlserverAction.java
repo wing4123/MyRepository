@@ -1,11 +1,10 @@
 package cn.tempus.oracle2sqlserver;
 
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -14,6 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import cn.tempus.task.oracle2sqlserverTask;
+import cn.tempus.utils.cmdUtil;
+import net.sf.json.JSONObject;
+
 @Controller
 @Scope("session")
 @RequestMapping("/control")
@@ -21,6 +24,8 @@ public class oracle2sqlserverAction {
 	
 	@Autowired
     private oracle2sqlserverService oracle2sqlserverservice;
+	@Autowired
+	oracle2sqlserverTask task;
 	
 	@RequestMapping("/home")
 	public String home(){
@@ -52,26 +57,27 @@ public class oracle2sqlserverAction {
 		return result;
 	}
 	
-	public void exec(){
-		BufferedReader br=null;  
-        try {  
-            Process p=Runtime.getRuntime().exec("ping lol.qq.com -t");  
-            br=new BufferedReader(new InputStreamReader(p.getInputStream(), "GBK"));  
-            String line=null;  
-            while((line=br.readLine())!=null){  
-                System.out.println(line);
-            }  
-        } catch (IOException e) {  
-            e.printStackTrace();  
-        }finally{  
-            if(br!=null){  
-                try{  
-                    br.close();  
-                }catch(Exception e){  
-                    e.printStackTrace();  
-                }  
-            }  
-        } 
+	@RequestMapping(value="/getTableData")
+	@ResponseBody
+	public Map<String,Object> getTableData(@RequestParam("pagenum")int pagenum){
+		Map<String,Object> result = oracle2sqlserverservice.getTableData(pagenum);
+		return result;
+	}
+	
+	@RequestMapping(value="/connectVPN")
+	@ResponseBody
+	public JSONObject connectVPN(){
+		String result = task.connectVPN();
+		JSONObject jo = new JSONObject();
+		if(result.contains("已连接")||result.contains("已经连接")){
+			jo.put("success", true);
+			jo.put("msg", "连接成功！");
+		}else{
+			jo.put("success", false);
+			jo.put("msg", "连接成功！");
+		}
+		System.out.println(jo);
+		return jo;
 	}
 	
 }

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -157,6 +159,24 @@ public class oracle2sqlserverService {
 			result = basicService2.InsertData(args);
 		}
 		return result;
+	}
+	
+	public Map<String,Object> getTableData(int pagenum){
+		Map<String,Object> map = new HashMap<String,Object>();
+		Map<String,Object> args = new HashMap<String,Object>();
+		args.put("#SQL", "select "+(pagenum*10-10)+"+rownum seq,sale_id,CONVERT(varchar(10),sale_datetime, 23) sale_datetime,sale_status,sub_total,discount_percent,discount_amount,tax_percent,tax_amount,grand_total,CONVERT(varchar(10),received_datetime, 20) received_datetime from (select ROW_NUMBER() OVER (ORDER BY sale_datetime desc) as rownum,* from posmaster) t  where t.rownum between "+(pagenum*10-10)+" and "+pagenum*10);
+		List<HashMap<String, Object>> list = basicService2.SelectListBySqlWithWhere(args);
+		int total=basicService2.SelectCountBySql("select count(*) from posmaster");
+		total=(int)Math.ceil((double)total/10);
+		StringBuffer sb = new StringBuffer();
+		for(int i=0;i<list.size();i++){
+			sb.append("<li><a href='#'>"+(pagenum*10+i+1)+"</a></li>");
+		}
+		map.put("list", list);
+		map.put("total", total);
+		map.put("page", sb.toString());
+		
+		return map;
 	}
 	
 }

@@ -42,7 +42,8 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
     
 	<!-- 配置事务管理器 -->
     <bean id="transactionManager1" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
-        <property name="dataSource" ref="dataSource1" />  
+        <property name="dataSource" ref="dataSource1" />
+        <qualifier value="transaction1"/> 
     </bean> 
     <tx:annotation-driven transaction-manager="transactionManager1" />
     
@@ -76,7 +77,8 @@ http://www.springframework.org/schema/task http://www.springframework.org/schema
     
 	<!-- 配置事务管理器 -->
     <bean id="transactionManager2" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
-        <property name="dataSource" ref="dataSource2" />  
+        <property name="dataSource" ref="dataSource2" />
+        <qualifier value="transaction1"/> 
     </bean> 
     <tx:annotation-driven transaction-manager="transactionManager2" />
     
