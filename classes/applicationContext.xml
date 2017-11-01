@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:context="http://www.springframework.org/schema/context"
+xmlns:aop="http://www.springframework.org/schema/aop"
+xmlns:tx="http://www.springframework.org/schema/tx"
+xmlns:task="http://www.springframework.org/schema/task"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd">
+	
+	<context:annotation-config />
+	
+	<!-- 加载jdbc配置文件 -->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations" value="classpath:jdbc.properties"/>
+    </bean>
+    
+    <!-- 配置数据源1,dbcp2 -->
+    <bean id="dataSource1" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${oracle.driver}" />
+        <property name="url" value="${oracle.url}" />
+        <property name="username" value="${oracle.user}" />
+        <property name="password" value="${oracle.password}" />
+        <property name="maxTotal" value="30"/>                <!-- 最大连接数量 -->
+        <property name="maxIdle" value="15"/>                 <!--最大空闲连接--> 
+        <property name="minIdle" value="5"/>                  <!--最小空闲连接--> 
+        <property name="initialSize" value="3"/>              <!--初始化连接-->
+    </bean>
+	
+	<bean id="sqlSessionFactory1" class="org.mybatis.spring.SqlSessionFactoryBean"> 
+		<property name="dataSource" ref="dataSource1" />
+		<property name="configLocation" value="classpath:mybatisconf.xml" />
+		<property name="typeAliasesPackage" value="cn.tempus.dao1" /> 
+	</bean>
+
+	<bean id="sqlSession1" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+		<constructor-arg index="0" ref="sqlSessionFactory1" />
+	</bean>
+    
+	<!-- 配置事务管理器 -->
+    <bean id="transactionManager1" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
+        <property name="dataSource" ref="dataSource1" />
+        <qualifier value="transaction1"/> 
+    </bean> 
+    <tx:annotation-driven transaction-manager="transactionManager1" />
+    
+    <!-- 让Spring通过自动扫描来查询和管理Mybatis的Mapper -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="cn.tempus.dao1" />
+		<property name="sqlSessionTemplateBeanName" value="sqlSession1" />
+	</bean>
+    
+    <!-- 配置数据源2,dbcp2 -->
+    <bean id="dataSource2" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${sqlserver.driver}" />
+        <property name="url" value="${sqlserver.url}" />
+        <property name="username" value="${sqlserver.user}" />
+        <property name="password" value="${sqlserver.password}" />
+        <property name="maxTotal" value="30"/>                <!-- 最大连接数量 -->
+        <property name="maxIdle" value="15"/>                 <!--最大空闲连接--> 
+        <property name="minIdle" value="5"/>                  <!--最小空闲连接--> 
+        <property name="initialSize" value="3"/>              <!--初始化连接-->
+    </bean>
+	
+	<bean id="sqlSessionFactory2" class="org.mybatis.spring.SqlSessionFactoryBean" > 
+		<property name="dataSource" ref="dataSource2" /> 
+		<property name="configLocation" value="classpath:mybatisconf.xml" />
+		<property name="typeAliasesPackage" value="cn.tempus.dao2" />
+	</bean>
+
+	<bean id="sqlSession2" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+		<constructor-arg index="0" ref="sqlSessionFactory2" />
+	</bean>
+    
+	<!-- 配置事务管理器 -->
+    <bean id="transactionManager2" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
+        <property name="dataSource" ref="dataSource2" />
+        <qualifier value="transaction1"/> 
+    </bean> 
+    <tx:annotation-driven transaction-manager="transactionManager2" />
+    
+    <!-- 让Spring通过自动扫描来查询和管理Mybatis的Mapper -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="cn.tempus.dao2" />
+		<property name="sqlSessionTemplateBeanName" value="sqlSession2" />
+	</bean>
+	
+	<!-- 扫描使用了spring注解的包 -->  
+    <context:component-scan base-package="cn.tempus" />
+	
+	<!-- 该 BeanPostProcessor 将自动起作用，对标注 @Autowired 的 Bean 进行自动注入      
+    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+    -->
+    
+    <!-- 配置spring定时任务 -->
+    <task:executor id="executor" pool-size="5" />  
+	<task:scheduler id="scheduler" pool-size="10" />  
+	<task:annotation-driven executor="executor" scheduler="scheduler" />
+	
+</beans>
